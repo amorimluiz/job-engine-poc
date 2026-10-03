@@ -5,6 +5,10 @@ projeto**, validado e fechado com **commit + tag** (`s01`, `s02`, ... `s18`).
 
 Fonte completa da teoria: [`TRILHA-ESTUDO.md`](../../TRILHA-ESTUDO.md).
 
+> **Detalhe por etapa:** cada etapa tem um doc próprio em
+> [`docs/stages/`](stages/) focado nas **queries prováveis** e no que a **suite
+> de testes** (`tests/p_<numero>.spec.ts`) valida. Ex.: `stages/s01.md`.
+
 ## Regra de ouro
 
 1. Estude o tema da etapa antes de codar.
@@ -64,18 +68,21 @@ O controller é montado em `src/app.ts`. Domínios atuais: `jobs/`, `queue/`,
 ## S1 — Fundamentos de SQL e modelagem
 
 - **Objetivo:** entender que **FK não cria índice** no Postgres.
-- **Incremento:** criar `job(id, pipeline_id, status, priority, run_at,
-  attempts, locked_until, locked_by, payload jsonb, created_at, updated_at)` e
+- **Incremento:** criar `pipeline(id, payload jsonb, created_at, updated_at)`,
+  `job(id, pipeline_id, step, status, run_at, attempts, locked_until,
+  locked_by, created_at, updated_at)` e
   `execution(id, job_id, status, output jsonb, started_at, finished_at)` via
-  migration, com FKs e **sem índice extra**; `seed.ts` insere 1M.
+  migration, com FKs e **sem índice extra**; `seed.ts` insere 340k pipelines
+  (payload = linha do CSV NYC 311) e 3 jobs (`normalize`, `enrich`, `classify`)
+  por pipeline.
 - **Validar:** `EXPLAIN (ANALYZE, BUFFERS)` mostra **Seq Scan** em `job`.
 - **Tag:** `s01`.
 
 ## S2 — Indexação e `EXPLAIN` (o tema mais importante)
 
 - **Objetivo:** transformar leitura lenta em rápida sob volume.
-- **Incremento:** `job(pipeline_id, status, priority)`;
-  `execution(job_id, status, created_at)`;
+- **Incremento:** `job(pipeline_id, status)` / `job(pipeline_id, step)`;
+  `execution(job_id, started_at)`;
   `job(status, run_at) WHERE status IN ('pending','failed')` (parcial);
   instalar `pg_stat_statements`.
 - **Validar:** Seq Scan → Index Scan/Bitmap; queda de `total_exec_time`;
