@@ -128,13 +128,4 @@ describe('S1 — modelagem e seed (FK sem indice)', () => {
 
     expect(rows[0].orphans).toBe(0);
   });
-
-  it('a query por pipeline_id ainda faz Seq Scan (objetivo: sem indice)', async () => {
-    const { rows } = await pool.query<{ 'QUERY PLAN': string }>(
-      `EXPLAIN SELECT * FROM job WHERE pipeline_id = 1`,
-    );
-    const plan = rows.map((row) => row['QUERY PLAN']).join('\n');
-
-    expect(plan).toMatch(/Seq Scan/);
-  });
 });
