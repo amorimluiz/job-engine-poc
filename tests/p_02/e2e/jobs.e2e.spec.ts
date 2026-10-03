@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createApp } from '../../src/app';
-import { AppDataSource } from '../../src/db/data-source';
+import { createApp } from '../../../src/app';
+import { AppDataSource } from '../../../src/db/data-source';
 
 let app: ReturnType<typeof createApp>;
 let pipelineId: string;

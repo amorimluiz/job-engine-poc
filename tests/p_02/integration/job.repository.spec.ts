@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { EStatus } from '../../src/common/enums/status.enum';
-import { AppDataSource } from '../../src/db/data-source';
-import { jobRepository } from '../../src/jobs/job.repository';
+import { EStatus } from '../../../src/common/enums/status.enum';
+import { AppDataSource } from '../../../src/db/data-source';
+import { jobRepository } from '../../../src/jobs/job.repository';
 
 let pipelineId: string;
 
