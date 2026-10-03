@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { JobRepositoryType } from '../../src/jobs/job.repository';
-import { JobService } from '../../src/jobs/job.service';
+import type { JobRepositoryType } from '../../../src/jobs/job.repository';
+import { JobService } from '../../../src/jobs/job.service';
 
 function buildRepository(
   overrides: Partial<JobRepositoryType> = {},

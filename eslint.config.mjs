@@ -11,12 +11,14 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   eslintConfigPrettier,
   {
-    files: ['**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: { ...globals.node },
     },
+  },
+  {
+    files: ['**/*.ts'],
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
