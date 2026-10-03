@@ -1,0 +1,6 @@
+{
+  "watch": ["src", ".env"],
+  "ext": "ts,json",
+  "ignore": ["dist", "node_modules"],
+  "exec": "ts-node src/main.ts"
+}
