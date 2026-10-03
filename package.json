@@ -1,0 +1,27 @@
+{
+  "name": "job-engine-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PoC incremental de um motor de jobs para grande volume (trilha S0-S18)",
+  "scripts": {
+    "start:dev": "ts-node src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/main.js",
+    "typeorm:migration:run": "typeorm migration:run -d dist/src/db/data-source.js",
+    "typeorm:migration:generate": "typeorm migration:generate -d dist/src/db/data-source.js",
+    "typeorm:migration:revert": "typeorm migration:revert -d dist/src/db/data-source.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  }
+}
