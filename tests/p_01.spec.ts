@@ -72,9 +72,7 @@ describe('S1 — modelagem e seed (FK sem indice)', () => {
     const definitions = rows.map((row) => row.def);
 
     expect(
-      definitions.some((def) =>
-        /job_id\)\s+REFERENCES\s+job\(id\)/.test(def),
-      ),
+      definitions.some((def) => /job_id\)\s+REFERENCES\s+job\(id\)/.test(def)),
     ).toBe(true);
   });
 
