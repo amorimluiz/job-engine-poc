@@ -36,7 +36,7 @@ async function main(): Promise<void> {
   );
   await explain(
     'jobs pendentes ordenados por run_at',
-    "SELECT * FROM \"job\" WHERE \"status\" = 'pending' ORDER BY \"run_at\" LIMIT 10",
+    'SELECT * FROM "job" WHERE "status" = \'pending\' ORDER BY "run_at" LIMIT 10',
   );
   await explain(
     'execution por job_id (FK sem indice)',

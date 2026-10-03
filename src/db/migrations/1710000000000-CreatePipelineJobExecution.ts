@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreatePipelineJobExecution1710000000000
-  implements MigrationInterface
-{
+export class CreatePipelineJobExecution1710000000000 implements MigrationInterface {
   name = 'CreatePipelineJobExecution1710000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
