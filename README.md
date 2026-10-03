@@ -82,14 +82,46 @@ O `DataSource` fica em `src/db/data-source.ts` (compilado para
 `dist/src/db/data-source.js`). Já vem com `synchronize: false` e
 `migrationsRun: false`, e sem entidades — as entidades/tabelas entram no S1.
 
-## Scripts de apoio
+## Seed (S1)
 
-Ainda são placeholders (S0):
+O `seed.ts` baixa **340.000 linhas** da base pública **NYC 311 Service Requests**
+(CSV via API SODA), usa cada linha como `payload` (jsonb) de uma `pipeline` e
+cria **3 jobs** por pipeline — `normalize`, `enrich`, `classify` — totalizando
+**1.020.000 jobs**. Antes de inserir, ele faz `TRUNCATE` das tabelas.
 
 ```bash
-npx ts-node scripts/seed.ts    # loga "TODO: S0/S1"
-npx ts-node scripts/bench.ts   # loga "TODO: S0/S16"
+npx ts-node scripts/seed.ts
 ```
+
+O `bench.ts` roda `EXPLAIN (ANALYZE, BUFFERS)` nas queries do motor
+(`job.pipeline_id`, `job.status`/`run_at`, `execution.job_id`):
+
+```bash
+npx ts-node scripts/bench.ts
+```
+
+## Testes de aceitação por etapa
+
+Cada etapa tem uma suíte que valida **se o objetivo da etapa foi atingido**
+(não testa a implementação, e sim o resultado observável — schema, dados,
+planos). Ficam em `tests/p_<numero>.spec.ts` e rodam com [Vitest](https://vitest.dev):
+
+```bash
+npm run test        # todas as suites
+npm run test:p00    # so a etapa S0 (infra)
+npm run test:p01    # so a etapa S1 (modelagem + seed)
+```
+
+Convenção: `p_00` valida o S0, `p_01` o S1, e assim por diante (o número da
+suíte acompanha o número da etapa). As suítes conectam direto no Postgres
+(`pg`) usando as variáveis do `.env`.
+
+- **`p_00`** — Postgres responde, RabbitMQ aceita TCP em 5672 e `/health`
+  responde 200 (pulado se a app não estiver no ar).
+- **`p_01`** — tabelas `pipeline`/`job`/`execution`; `job` com `step` e sem
+  `priority`; FKs corretas; **só PKs, nenhum índice secundário**; 340k
+  pipelines e 1.02M jobs; `payload` jsonb; e `Seq Scan` na query por
+  `pipeline_id`.
 
 ## Convenção da trilha: uma etapa S por tag/commit
 
@@ -117,22 +149,23 @@ job-engine-poc/
     app.ts                    # cria o app Express e monta os controllers
     db/
       data-source.ts          # DataSource do TypeORM (CLI + scripts)
-      migrations/             # vazio (S1+)
+      migrations/             # 1710000000000-CreatePipelineJobExecution.ts
     health/                   # unico dominio com codigo no S0 (MSC)
       health.controller.ts
       health.service.ts
-    jobs/                     # vazio (S1+)
+    jobs/                     # models: pipeline.model.ts, job.model.ts, execution.model.ts
     queue/                    # vazio (S10+)
     metrics/                  # vazio (S15+)
     worker-fake/              # vazio (S1+)
   scripts/
-    seed.ts                   # placeholder
-    bench.ts                  # placeholder
+    seed.ts                   # 340k pipelines + 3 jobs cada (NYC 311)
+    bench.ts                  # EXPLAIN (ANALYZE, BUFFERS) das queries do motor
 ```
 
-## Fora de escopo no S0 (entra nas etapas seguintes)
+## Etapas seguintes (roadmap)
 
-- S1: tabelas `job`/`execution`, seed de 1M e medição de seq scan.
+- S1 (feito): tabelas `pipeline`/`job`/`execution` só com FK, seed de 340k
+  pipelines (NYC 311) e medição de **Seq Scan**.
 - S2: índices + `EXPLAIN`/`pg_stat_statements`.
 - S3: migrations sem downtime (`CREATE INDEX CONCURRENTLY`).
 - S4: N+1 e O(n²).
@@ -143,4 +176,5 @@ job-engine-poc/
 - S10–S13: broker (exchange/queue, prefetch, retry/DLQ, confirms).
 - S14–S18: outbox/idempotência, observabilidade, profiling, pooling e escala.
 
-Nada disso está implementado aqui — o S0 é só o esqueleto e a base de medição.
+Detalhe do roadmap: [`docs/roadmap.md`](docs/roadmap.md). Queries prováveis por
+etapa: [`docs/stages/`](docs/stages/).
