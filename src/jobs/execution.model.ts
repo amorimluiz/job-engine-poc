@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +13,7 @@ export class Execution {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;
 
+  @Index('execution_job_id_idx')
   @Column({ type: 'bigint', name: 'job_id' })
   jobId!: string;
 

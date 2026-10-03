@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -10,12 +11,16 @@ import {
 } from 'typeorm';
 import { Execution } from './execution.model';
 import { Pipeline } from './pipeline.model';
+import { EStatus } from '../common/enums/status.enum';
 
 @Entity('job')
+@Index('job_pipeline_id_pending_idx', ['pipelineId'], { where: `status = '${EStatus.PENDING}'` })
+@Index('job_run_at_desc_pending_id', ['runAt'], { where: `status = '${EStatus.PENDING}'` })
 export class Job {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;
 
+  @Index('job_pipeline_id_idx')
   @Column({ type: 'bigint', name: 'pipeline_id' })
   pipelineId!: string;
 
